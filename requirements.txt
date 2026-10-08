@@ -1,0 +1,5 @@
+# Runtime minimale; SQLite fa parte della libreria standard Python.
+fastapi==0.135.1
+starlette==0.52.1
+pydantic==2.12.5
+uvicorn==0.42.0

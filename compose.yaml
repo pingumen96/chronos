@@ -1,0 +1,39 @@
+services:
+  chronos:
+    build: .
+    image: chronos:local
+    restart: always
+    user: "10001:10001"
+    ports:
+      - "${CHRONOS_BIND_IP:-192.168.1.57}:${CHRONOS_PORT:-8080}:8000"
+    environment:
+      CHRONOS_DB_PATH: /data/timelines.db
+    volumes:
+      - chronos_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).close()"
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  chronos_data:
+    name: ${CHRONOS_VOLUME_NAME:-chronos_data}
